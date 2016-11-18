@@ -187,7 +187,7 @@ func MonthName(m TqMonth) string {
 		return "Mendel"
 	default:
 		return ""
-    }
+	}
 }
 
 func MonthLetter(m TqMonth) string {
