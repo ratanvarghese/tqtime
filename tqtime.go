@@ -1,12 +1,16 @@
 //g_* == Gregorian
 package tqtime
 
-import "time"
+import (
+	"fmt"
+	"strconv"
+	"time"
+)
 
-type Weekday int
+type TqWeekday int
 
 const (
-	SpecialWeekday Weekday = iota
+	SpecialWeekday TqWeekday = iota
 	Friday
 	Saturday
 	Sunday
@@ -16,10 +20,10 @@ const (
 	Thursday
 )
 
-type Month int
+type TqMonth int
 
 const (
-	SpecialDay Month = iota
+	SpecialDay TqMonth = iota
 	Archimedes
 	Brahe
 	Copernicus
@@ -35,129 +39,241 @@ const (
 	Mendel
 )
 
-const ArmstrongDay = -1
-const AldrinDay = -2
-const MoonLandingDay = -3
+const ArmstrongDay int = -1
+const AldrinDay int = -2
+const MoonLandingDay int = -3
 
-func moonLandingMoment() time.Time {
-    return time.Date(1969, time.July, 20, 20, 18, 1, 200000000, time.UTC)
-}
+const mlYear int = 1969
+const mlMonth time.Month = time.July
+const mlDay int = 20
+const mlYearDay int = 201
 
-func gregorianLeapYear(g time.Time) bool {
+const commonYearLen int = 365
+const tqMonthLen int = 28
+
+func isGregorianLeapYear(g time.Time) bool {
 	y := g.Year()
-	feb29 := time.Date(y, time.February, 29, 1, 0, 0, 0, g.Location())
-	return (feb29.Month() == time.February)
+	return (y%400 == 0) || (y%4 == 0 && y%100 != 0)
 }
 
 func isMoonLandingDay(g time.Time) bool {
-    mlm := moonLandingMoment()
-    g_y, g_m, g_d := g.Date()
-    mlm_y, mlm_m, mlm_d := mlm.Date()
-    return g_y == mlm.y && g_m == mlm.m && g_d == mlm_d
+	g_y, g_m, g_d := g.Date()
+	return g_y == mlYear && g_m == mlMonth && g_d == mlDay
 }
 
 func isAfterArmstrongDay(g time.Time) bool {
-    mlm := moonLandingMoment()
-    g_y, g_m, g_d := g.Date()
-    mlm_y, mlm_m, mlm_d := mlm.Date()
-    return (g_m > mlm_m) || (g_m == mlm_m && g_d > mlm_d)
-}
-
-func gregYearDayToTqYearDay(g_yd, yearLen int) int {
-    mlm := moonLandingMoment()
-    baseShift := mlm.YearDay()
-    diff := g_yd - baseShift
-    if diff > 0 || yearLen == diff {
-        return diff
-    } else {
-        return yearLen - diff
-    }
+	_, g_m, g_d := g.Date() //Avoid YearDay due to leap year
+	return (g_m > mlMonth) || (g_m == mlMonth && g_d > mlDay)
 }
 
 func IsBeforeTranquility(unixTime int64) bool {
-    t := time.Unix(unixTime, 0)
-    return t.Before(moonLandingMoment())
+	const unixMoonLanding int64 = -14182919
+	return unixTime < unixMoonLanding
 }
 
 func Year(unixTime int64) int {
-    g := time.Unix(unixTime, 0)
-    if isMoonLandingDay(g) {
-        return 0
-    }
-    mlm = moonLandingMoment()
-    yearDiff := g_y - mlm.Year()
-    if isAfterArmstrongDay(g) {
-        yearDiff += 1
-    }
-    if g.Before(mlm) {
-        yearDiff -= 1
-    }
-    return yearDiff
+	g := time.Unix(unixTime, 0)
+	if isMoonLandingDay(g) {
+		return 0
+	}
+	yearDiff := g.Year() - mlYear
+	if isAfterArmstrongDay(g) {
+		yearDiff += 1
+	}
+	if yearDiff < 1 {
+		yearDiff -= 1
+	}
+	return yearDiff
 }
 
-func Month(unixTime int64) Month {
-    yd := YearDay(unixTime)
-    g := time.Unix(unixTime, 0)
-    if gregorianLeapYear(g) {
-        const leapDay = Hippocrates*28
-        if yd == leapDay {
-            return SpecialDay //Aldrin Day
-        } else if yd > leapDay {
-            yd -= 1
-        }
-    }
-    if yd == 365 {
-        return SpecialDay //Armstrong Day
-    }
-    return ((yd - 1)/ 28) + 1
+func Month(unixTime int64) TqMonth {
+	g := time.Unix(unixTime, 0)
+	if isMoonLandingDay(g) {
+		return SpecialDay //Moon Landing Day
+	}
+	yd := YearDay(unixTime)
+	if isGregorianLeapYear(g) {
+		const leapDay int = tqMonthLen * int(Hippocrates)
+		if yd == leapDay {
+			return SpecialDay //Aldrin Day
+		} else if yd > leapDay {
+			yd -= 1
+		}
+	}
+	if yd == commonYearLen {
+		return SpecialDay //Armstrong Day
+	}
+	return TqMonth(((yd - 1) / tqMonthLen) + 1)
 }
 
 func Day(unixTime int64) int {
-    g := time.Unix(unixTime)
-    if isMoonLandingDay(g) {
-        return MoonLandingDay
-    }
-    yd := YearDay(unixTime)
-    if gregorianLeapYear(g) {
-        const leapDay = Hippocrates*28
-        if yd == leapDay {
-            return SpecialDay //Aldrin Day
-        } else if yd > leapDay {
-            yd -= 1
-        }
-    }
-    if yd == 365 {
-        return ArmstrongDay
-    } else if yd % 28 == 0 {
-        return 28
-    } else {
-        return (yd % 28)
-    }
+	g := time.Unix(unixTime, 0)
+	if isMoonLandingDay(g) {
+		return MoonLandingDay
+	}
+	yd := YearDay(unixTime)
+	if isGregorianLeapYear(g) {
+		const leapDay int = tqMonthLen * int(Hippocrates)
+		if yd == leapDay {
+			return AldrinDay
+		} else if yd > leapDay {
+			yd -= 1
+		}
+	}
+	if yd == commonYearLen {
+		return ArmstrongDay
+	} else if yd%tqMonthLen == 0 {
+		return tqMonthLen
+	} else {
+		return (yd % tqMonthLen)
+	}
 }
 
 func YearDay(unixTime int64) int {
-    g := time.Unix(unixTime, 0)
-    g_yd := g.YearDay()
-    yearLen := 365
-    if gregorianLeapYear(g) {
-        yearLen += 1
-    }
-    return gregYearDayToTqYearDay(g_yd, yearLen)
+	g := time.Unix(unixTime, 0)
+	yearLen := commonYearLen
+	armstrongYearDay := mlYearDay
+	if isGregorianLeapYear(g) {
+		yearLen += 1
+		armstrongYearDay += 1
+	}
+	diff := g.YearDay() - armstrongYearDay
+	if diff > 0 || yearLen == diff {
+		return diff
+	} else {
+		return yearLen - diff
+	}
 }
 
-func Weekday(unixTime int64) Weekday {
-    d := Day(unixTime)
-    if d < 0 {
-        return SpecialWeekday
-    } else if d % 7 == 0 {
-        return Thursday
-    } else {
-        return d % 7
-    }
+func Weekday(unixTime int64) TqWeekday {
+	d := Day(unixTime)
+	switch {
+	case d < 0:
+		return SpecialWeekday
+	case d%7 == 0:
+		return Thursday
+	default:
+		return TqWeekday(d % 7)
+	}
 }
 
-func LongDate(unixTime int64) string {
+func MonthName(m TqMonth) string {
+	switch m {
+	case Archimedes:
+		return "Archimedes"
+	case Brahe:
+		return "Brahe"
+	case Copernicus:
+		return "Copernicus"
+	case Darwin:
+		return "Darwin"
+	case Einstein:
+		return "Einstein"
+	case Faraday:
+		return "Faraday"
+	case Galileo:
+		return "Galileo"
+	case Hippocrates:
+		return "Hippocrates"
+	case Imhotep:
+		return "Imhotep"
+	case Jung:
+		return "Jung"
+	case Kepler:
+		return "Kepler"
+	case Lavoisier:
+		return "Lavoisier"
+	case Mendel:
+		return "Mendel"
+	default:
+		return ""
+	}
+}
+
+func MonthLetter(m TqMonth) string {
+	switch m {
+	case Archimedes:
+		return "A"
+	case Brahe:
+		return "B"
+	case Copernicus:
+		return "C"
+	case Darwin:
+		return "D"
+	case Einstein:
+		return "E"
+	case Faraday:
+		return "F"
+	case Galileo:
+		return "G"
+	case Hippocrates:
+		return "H"
+	case Imhotep:
+		return "I"
+	case Jung:
+		return "J"
+	case Kepler:
+		return "K"
+	case Lavoisier:
+		return "L"
+	case Mendel:
+		return "M"
+	default:
+		return ""
+	}
+}
+
+func DayName(d int) string {
+	switch d {
+	case ArmstrongDay:
+		return "Armstrong Day"
+	case AldrinDay:
+		return "Aldrin Day"
+	case MoonLandingDay:
+		return "Moon Landing Day"
+	default:
+		return strconv.Itoa(d)
+	}
+}
+
+func DayCode(d int) string {
+	switch d {
+	case ArmstrongDay:
+		return "ARM"
+	case AldrinDay:
+		return "ALD"
+	case MoonLandingDay:
+		return "MNL"
+	default:
+		return strconv.Itoa(d)
+	}
+}
+
+func WeekdayName(w TqWeekday) string {
+	return time.Weekday((int(w) + 4) % 7).String()
 }
 
 func ShortDate(unixTime int64) string {
+	d := Day(unixTime)
+	y := Year(unixTime)
+	if d < 0 {
+		return fmt.Sprintf("%s %d", DayCode(d), y)
+	} else {
+		ml := MonthLetter(Month(unixTime))
+		return fmt.Sprintf("%02d%s %d", d, ml, y)
+	}
+}
+
+func LongDate(unixTime int64) string {
+	w := WeekdayName(Weekday(unixTime))
+	d := DayName(Day(unixTime))
+	m := MonthName(Month(unixTime))
+	y := strconv.Itoa(Year(unixTime))
+	var suffix string
+	if IsBeforeTranquility(unixTime) {
+		suffix = "Before Tranquility"
+	} else {
+		suffix = "After Tranquility"
+	}
+	return fmt.Sprintf("%s, %s %s, %s %s", w, d, m, y, suffix)
 }
