@@ -72,7 +72,7 @@ func IsBeforeTranquility(unixTime int64) bool {
 }
 
 func Year(unixTime int64) int {
-	g := time.Unix(unixTime, 0)
+	g := time.Unix(unixTime, 0).UTC()
 	if isMoonLandingDay(g) {
 		return 0
 	}
@@ -87,7 +87,7 @@ func Year(unixTime int64) int {
 }
 
 func Month(unixTime int64) TqMonth {
-	g := time.Unix(unixTime, 0)
+	g := time.Unix(unixTime, 0).UTC()
 	if isMoonLandingDay(g) {
 		return SpecialDay //Moon Landing Day
 	}
@@ -107,7 +107,7 @@ func Month(unixTime int64) TqMonth {
 }
 
 func Day(unixTime int64) int {
-	g := time.Unix(unixTime, 0)
+	g := time.Unix(unixTime, 0).UTC()
 	if isMoonLandingDay(g) {
 		return MoonLandingDay
 	}
@@ -130,7 +130,7 @@ func Day(unixTime int64) int {
 }
 
 func YearDay(unixTime int64) int {
-	g := time.Unix(unixTime, 0)
+	g := time.Unix(unixTime, 0).UTC()
 	yearLen := commonYearLen
 	armstrongYearDay := mlYearDay
 	if isGregorianLeapYear(g) {
@@ -141,7 +141,7 @@ func YearDay(unixTime int64) int {
 	if diff > 0 || yearLen == diff {
 		return diff
 	} else {
-		return yearLen - diff
+		return yearLen + diff
 	}
 }
 
@@ -187,7 +187,7 @@ func MonthName(m TqMonth) string {
 		return "Mendel"
 	default:
 		return ""
-	}
+    }
 }
 
 func MonthLetter(m TqMonth) string {
