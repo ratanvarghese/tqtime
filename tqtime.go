@@ -1,4 +1,4 @@
-//g_* == Gregorian
+//Package tqtime interprets UNIX timestamps (seconds since 00:00:00 UTC on January 1970) and outputs dates in the Tranquility calendar. The Tranquility calendar is a perennial calendar developed by Jeff Siggins. A copy of the article proposing this calendar is at www.webcitation.org/6WtW38bAU
 package tqtime
 
 import (
@@ -7,8 +7,10 @@ import (
 	"time"
 )
 
+//TqWeekday represents a day of the Tranquility week.
 type TqWeekday int
 
+//In the Tranquility calendar, all months start on a Friday. Armstrong Day, Aldrin Day and Moon Landing Day do not have associated days of the week. These days are represented as SpecialWeekday when their positions in the week are requested.
 const (
 	SpecialWeekday TqWeekday = iota
 	Friday
@@ -20,8 +22,10 @@ const (
 	Thursday
 )
 
+//TqMonth represents a Tranquility month.
 type TqMonth int
 
+//The months of the Tranquility calendar are named after scientists and are in alphabetical order. Armstrong Day, Aldrin Day and Moon Landing Day do not have associated months. These days are represented as SpecialDay when their month is requested.
 const (
 	SpecialDay TqMonth = iota
 	Archimedes
@@ -39,8 +43,13 @@ const (
 	Mendel
 )
 
+//ArmstrongDay is the last day of each Tranquility year, except for 1 Before Tranquility (BT). It is 20 July in the Gregorian calendar. 20 July 1969 is not part of a year, and thus not an Armstrong Day. 20 July 1968 is considered Armstrong Day 2 BT by this package, but is considered Armstrong Day 1 BT by tranquilityDate.c (by Scott M Harrison).
 const ArmstrongDay int = -1
+
+//AldrinDay an extra day added during leap years. It is inserted before the last day of Hippocrates, interrupting the month and week. It is 29 February in the Gregorian calendar.
 const AldrinDay int = -2
+
+//MoonLandingDay is 20 July 1969, the day Neil Armstrong and Edwin "Buzz" Aldrin landed on the moon. It is not part of any week, month or year, although for convenience it is treated as year 0 by this package.
 const MoonLandingDay int = -3
 
 const mlYear int = 1969
@@ -57,20 +66,22 @@ func isGregorianLeapYear(g time.Time) bool {
 }
 
 func isMoonLandingDay(g time.Time) bool {
-	g_y, g_m, g_d := g.Date()
-	return g_y == mlYear && g_m == mlMonth && g_d == mlDay
+	y, m, d := g.Date()
+	return y == mlYear && m == mlMonth && d == mlDay
 }
 
 func isAfterArmstrongDay(g time.Time) bool {
-	_, g_m, g_d := g.Date() //Avoid YearDay due to leap year
-	return (g_m > mlMonth) || (g_m == mlMonth && g_d > mlDay)
+	_, m, d := g.Date() //Avoid YearDay due to leap year
+	return (m > mlMonth) || (m == mlMonth && d > mlDay)
 }
 
+//IsBeforeTranquility returns true if and only if unixTime is before 20:18:01.2 on Moon Landing Day. This is the exact moment that Neil Armstrong said the word "Tranquility" in the phrase "Houston, Tranquility Base here. The Eagle has landed."
 func IsBeforeTranquility(unixTime int64) bool {
 	const unixMoonLanding int64 = -14182919
 	return unixTime < unixMoonLanding
 }
 
+//Year returns the Tranquility year of the given unixTime. This is defined as the years since the first moon landing. Years before Moon Landing Day are represented as negative, Moon Landing Day itself is represented with 0, and years after Moon Landing Day are represented as positive.
 func Year(unixTime int64) int {
 	g := time.Unix(unixTime, 0).UTC()
 	if isMoonLandingDay(g) {
@@ -78,14 +89,15 @@ func Year(unixTime int64) int {
 	}
 	yearDiff := g.Year() - mlYear
 	if isAfterArmstrongDay(g) {
-		yearDiff += 1
+		yearDiff++
 	}
 	if yearDiff < 1 {
-		yearDiff -= 1
+		yearDiff--
 	}
 	return yearDiff
 }
 
+//Month returns the Tranquility month of the given unixTime. If unixTime does not fall on a month, SpecialDay is returned.
 func Month(unixTime int64) TqMonth {
 	g := time.Unix(unixTime, 0).UTC()
 	if isMoonLandingDay(g) {
@@ -97,7 +109,7 @@ func Month(unixTime int64) TqMonth {
 		if yd == leapDay {
 			return SpecialDay //Aldrin Day
 		} else if yd > leapDay {
-			yd -= 1
+			yd--
 		}
 	}
 	if yd == commonYearLen {
@@ -106,6 +118,7 @@ func Month(unixTime int64) TqMonth {
 	return TqMonth(((yd - 1) / tqMonthLen) + 1)
 }
 
+//Day returns the day of the Tranquility month of the given unixTime. If the unixTime does not fall on a month, a special negative value is returned: one of MoonLandingDay, ArmstrongDay or AldrinDay.
 func Day(unixTime int64) int {
 	g := time.Unix(unixTime, 0).UTC()
 	if isMoonLandingDay(g) {
@@ -117,7 +130,7 @@ func Day(unixTime int64) int {
 		if yd == leapDay {
 			return AldrinDay
 		} else if yd > leapDay {
-			yd -= 1
+			yd--
 		}
 	}
 	if yd == commonYearLen {
@@ -129,22 +142,23 @@ func Day(unixTime int64) int {
 	}
 }
 
+//YearDay returns the day of the Tranquility year of the given unixTime.
 func YearDay(unixTime int64) int {
 	g := time.Unix(unixTime, 0).UTC()
 	yearLen := commonYearLen
 	armstrongYearDay := mlYearDay
 	if isGregorianLeapYear(g) {
-		yearLen += 1
-		armstrongYearDay += 1
+		yearLen++
+		armstrongYearDay++
 	}
 	diff := g.YearDay() - armstrongYearDay
 	if diff > 0 || yearLen == diff {
 		return diff
-	} else {
-		return yearLen + diff
 	}
+	return yearLen + diff
 }
 
+//Weekday returns the day of the week of the given unixTime. If unixTime does not fall on a week, the value SpecialWeekday is returned.
 func Weekday(unixTime int64) TqWeekday {
 	d := Day(unixTime)
 	switch {
@@ -157,6 +171,7 @@ func Weekday(unixTime int64) TqWeekday {
 	}
 }
 
+//MonthName returns the English name of the given Tranquility month. If m is not a valid month, a blank string is returned.
 func MonthName(m TqMonth) string {
 	switch m {
 	case Archimedes:
@@ -190,6 +205,7 @@ func MonthName(m TqMonth) string {
 	}
 }
 
+//MonthLetter returns the first letter of the name of the given Tranquility month. If m is not a valid month, a blank string is returned.
 func MonthLetter(m TqMonth) string {
 	switch m {
 	case Archimedes:
@@ -223,6 +239,7 @@ func MonthLetter(m TqMonth) string {
 	}
 }
 
+//DayName returns the string representation of a day of Tranquility Month, or one of the following special strings when the corresponding special day constant is provided: "Armstrong Day", "Aldrin Day" or "Moon Landing Day".
 func DayName(d int) string {
 	switch d {
 	case ArmstrongDay:
@@ -236,6 +253,7 @@ func DayName(d int) string {
 	}
 }
 
+//DayCode returns the string representation of a day of the Tranquility Month, or one of the following special strings when the corresponding special day constant is provided: "ARM" for ArmstrongDay, "ALD" for AldrinDay and "MNL" for MoonLandingDay.
 func DayCode(d int) string {
 	switch d {
 	case ArmstrongDay:
@@ -249,21 +267,23 @@ func DayCode(d int) string {
 	}
 }
 
+//WeekdayName returns the English name of a day of the week.
 func WeekdayName(w TqWeekday) string {
 	return time.Weekday((int(w) + 4) % 7).String()
 }
 
+//ShortDate returns the string representation of unixTime in a compact format. On special days, the result is "DDD %y", where DDD is a 3 character day code. On other days, the result is "DDM %y" where DD is the zero-padded day of the month, M is the first letter of the month name. In both cases, %y is a variable-length integer representing the year. %y is preceded by '-' on years Before Tranquility.
 func ShortDate(unixTime int64) string {
 	d := Day(unixTime)
 	y := Year(unixTime)
 	if d < 0 {
 		return fmt.Sprintf("%s %d", DayCode(d), y)
-	} else {
-		ml := MonthLetter(Month(unixTime))
-		return fmt.Sprintf("%02d%s %d", d, ml, y)
 	}
+	ml := MonthLetter(Month(unixTime))
+	return fmt.Sprintf("%02d%s %d", d, ml, y)
 }
 
+//LongDate returns the string representation of the unixTime in a descriptive format.
 func LongDate(unixTime int64) string {
 	w := WeekdayName(Weekday(unixTime))
 	d := DayName(Day(unixTime))

@@ -1,0 +1,8 @@
+#!/bin/sh
+
+go fmt *.go
+go build
+go test -coverprofile=c.out
+go tool cover -func=c.out
+rm c.out
+gometalinter --exclude="_test.go"
