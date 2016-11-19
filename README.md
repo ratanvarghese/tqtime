@@ -23,6 +23,7 @@ The months are named after great scientists, instead of [Roman autocrats](https:
 * Kepler
 * Lavoisier
 * Mendel
+
 Notice that the months are in alphabetical order: they could be unambiguously identified with just the first letter. Every month starts on a Friday, and has 28 days. The 1 Archimedes, 1 After Tranquility is 21 July 1969 in the Gregorian calendar.
 
 ###Special Days
@@ -32,22 +33,25 @@ Aldrin Day is added after 27 Hippocrates and before 28 Hippocrates on leap years
 
 ##Using this package
 ###Installation
-To install this package, install the [standard go tools](https://golang.org/doc/install). Then run:
-`go get github.com/ratanvarghese/tqtime`
+To install this package, install the [standard go tools](https://golang.org/doc/install). Then run: `go get github.com/ratanvarghese/tqtime`
 
 ###Functions
-All exported functions are documented in the standard Go format.
-`go doc`
+All exported functions are documented in the standard Go format, so for more information run `go doc`.
 
 One of the less obvious functions is `ShortDate`, which prints the Tranquility date in an original format. Since each Tranquility month has a unique starting letter, any date in a month can be presented with a unique 3-character code:
+
 `28 Mendel             28M`
+
 `3 Copernicus          03C`
+
 Special Days have unique codes:
+
 `Armstrong Day         ARM`
+
 `Aldrin Day            ALD`
+
 `Moon Landing Day      MNL`
-ShortDate appends this code with a space and a variable-length year number. Years Before Tranquility are negative numbers, years After Tranquility are positive. So '28 Mendel, 3 Before Tranquility' becomes
-`28M -3` 
+ShortDate appends this code with a space and a variable-length year number. Years Before Tranquility are negative numbers, years After Tranquility are positive. So '28 Mendel, 3 Before Tranquility' becomes `28M -3`.
 
 If you do not like the provided `LongDate` and `ShortDate`, you can gather all the induvidual date components and print them as you wish.
 
@@ -61,10 +65,14 @@ There is a basic test script called tqcheck which requires [gometalinter](https:
 ##20 July 1968: Which Tranquility Year Does it Belong to?
 The [wikipedia article](https://en.wikipedia.org/wiki/Tranquility_Calendar) about the Tranquility calendar says:
 > The year ending the day before Moon Landing Day, and starting on the previous Armstrong Day, is 1 Before Tranquility, or 1 BT.
+
 This would suggest that dates Before Tranquility start on Armstrong Day, instead of ending on it. But Jeff Siggins' article states that:
 > The last day of each Tranquility year is called Armstrong Day...
+
 Days Before Tranquility are hardly mentioned by Siggins.
+
 When using [tranquilityDate.c](https://www.mithrandir.com/Tranquility/tranquilityDate.c) by Scott M Harrison, 20 July 1968 is considered Armstrong Day 1 Before Tranquility... but 20 July 1967 is considered Armstrong Day 3 Before Tranquility!
+
 As far as I know, the biggest users of the Tranquility calendar today are the [Orion's Arm collaborative science project](https://www.orionsarm.com) but they do not care about anything that happened on 20 July 1968.
 
 On the matter of Armstrong Days Before Tranquility, this package assumes the following:
