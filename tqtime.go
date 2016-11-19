@@ -267,8 +267,11 @@ func DayCode(d int) string {
 	}
 }
 
-//WeekdayName returns the English name of a day of the week.
+//WeekdayName returns the English name of a day of the week. Invalid inputs produce blank strings.
 func WeekdayName(w TqWeekday) string {
+	if w < Friday || w > Thursday {
+		return ""
+	}
 	return time.Weekday((int(w) + 4) % 7).String()
 }
 
@@ -285,15 +288,23 @@ func ShortDate(unixTime int64) string {
 
 //LongDate returns the string representation of the unixTime in a descriptive format.
 func LongDate(unixTime int64) string {
-	w := WeekdayName(Weekday(unixTime))
-	d := DayName(Day(unixTime))
-	m := MonthName(Month(unixTime))
-	y := strconv.Itoa(Year(unixTime))
+	d := Day(unixTime)
+	if d == MoonLandingDay {
+		return "Moon Landing Day"
+	}
+
+	y := Year(unixTime)
 	var suffix string
-	if IsBeforeTranquility(unixTime) {
+	if y < 0 {
 		suffix = "Before Tranquility"
+		y = -1 * y
 	} else {
 		suffix = "After Tranquility"
 	}
-	return fmt.Sprintf("%s, %s %s, %s %s", w, d, m, y, suffix)
+	if d < 0 {
+		return fmt.Sprintf("%s, %d %s", DayName(d), y, suffix)
+	}
+	w := WeekdayName(Weekday(unixTime))
+	m := MonthName(Month(unixTime))
+	return fmt.Sprintf("%s, %s %s, %d %s", w, DayName(d), m, y, suffix)
 }
