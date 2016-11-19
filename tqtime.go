@@ -1,6 +1,8 @@
 //Package tqtime interprets UNIX timestamps (seconds since 00:00:00 UTC on January 1970) and outputs dates in the Tranquility calendar. The Tranquility calendar is a perennial calendar developed by Jeff Siggins. A copy of the article proposing this calendar is at www.webcitation.org/6WtW38bAU
 package tqtime
 
+//Note to modders: For nonexported symbols in this package, the prefix 'g' is Gregorian, and the prefix 'tq' is Tranquility.
+
 import (
 	"fmt"
 	"strconv"
@@ -99,7 +101,7 @@ func tqYearDay(gy, gyd int) int {
 	return clockModulo((gyd + shift), gYearLen(gy))
 }
 
-//tqLeapAdjustedYearDay converts a Tranquility day of year and a Gregorian year into a value which is easier to calculate with. If the Gregorian year and Tranquility day of year corresponds to a special day, then that day's constant is returned. Otherwise, the corresponding day of common Tranquility year is returned. For instance if tqyd = 100 and gy = 2000, that represents a day after Aldrin Day on a leap year: the corresponding day of common Tranqility year is 99.
+//tqLeapAdjustedYearDay converts a Tranquility day of year and a Gregorian year into a value which is easier to calculate with. If the Gregorian year and Tranquility day of year corresponds to a special day, then that day's constant is returned. Otherwise, the corresponding day of common Tranquility year is returned. For instance if tqyd = 300 and gy = 2000, that represents a day after Aldrin Day on a leap year: the corresponding day of common Tranqility year is 299.
 func tqLeapAdjustedYearDay(tqyd, gy int) int {
 	if gLeapYear(gy) {
 		const tqydAldrin int = tqMonthLen * int(Hippocrates)
@@ -168,16 +170,16 @@ func Day(unixTime int64) int {
 
 //Weekday returns the day of the week of the given unixTime. If unixTime does not fall on a week, the value SpecialWeekday is returned.
 func Weekday(unixTime int64) TqWeekday {
-	d := Day(unixTime)
-	if d < 0 {
+	tqd := Day(unixTime)
+	if tqd < 0 {
 		return SpecialWeekday
 	}
-	return TqWeekday(clockModulo(d, 7))
+	return TqWeekday(clockModulo(tqd, 7))
 }
 
 //MonthName returns the English name of the given Tranquility month. If m is not a valid month, a blank string is returned.
-func MonthName(m TqMonth) string {
-	switch m {
+func MonthName(tqm TqMonth) string {
+	switch tqm {
 	case Archimedes:
 		return "Archimedes"
 	case Brahe:
@@ -210,42 +212,17 @@ func MonthName(m TqMonth) string {
 }
 
 //MonthLetter returns the first letter of the name of the given Tranquility month. If m is not a valid month, a blank string is returned.
-func MonthLetter(m TqMonth) string {
-	switch m {
-	case Archimedes:
-		return "A"
-	case Brahe:
-		return "B"
-	case Copernicus:
-		return "C"
-	case Darwin:
-		return "D"
-	case Einstein:
-		return "E"
-	case Faraday:
-		return "F"
-	case Galileo:
-		return "G"
-	case Hippocrates:
-		return "H"
-	case Imhotep:
-		return "I"
-	case Jung:
-		return "J"
-	case Kepler:
-		return "K"
-	case Lavoisier:
-		return "L"
-	case Mendel:
-		return "M"
-	default:
-		return ""
+func MonthLetter(tqm TqMonth) string {
+	name := MonthName(tqm)
+	if len(name) > 0 {
+		return name[:1]
 	}
+	return ""
 }
 
 //DayName returns the string representation of a day of Tranquility Month, or one of the following special strings when the corresponding special day constant is provided: "Armstrong Day", "Aldrin Day" or "Moon Landing Day".
-func DayName(d int) string {
-	switch d {
+func DayName(tqmd int) string {
+	switch tqmd {
 	case ArmstrongDay:
 		return "Armstrong Day"
 	case AldrinDay:
@@ -253,13 +230,13 @@ func DayName(d int) string {
 	case MoonLandingDay:
 		return "Moon Landing Day"
 	default:
-		return strconv.Itoa(d)
+		return strconv.Itoa(clockModulo(tqmd, tqMonthLen))
 	}
 }
 
 //DayCode returns the string representation of a day of the Tranquility Month, or one of the following special strings when the corresponding special day constant is provided: "ARM" for ArmstrongDay, "ALD" for AldrinDay and "MNL" for MoonLandingDay.
-func DayCode(d int) string {
-	switch d {
+func DayCode(tqmd int) string {
+	switch tqmd {
 	case ArmstrongDay:
 		return "ARM"
 	case AldrinDay:
@@ -267,48 +244,48 @@ func DayCode(d int) string {
 	case MoonLandingDay:
 		return "MNL"
 	default:
-		return strconv.Itoa(d)
+		return strconv.Itoa(clockModulo(tqmd, tqMonthLen))
 	}
 }
 
 //WeekdayName returns the English name of a day of the week. Invalid inputs produce blank strings.
-func WeekdayName(w TqWeekday) string {
-	if w < Friday || w > Thursday {
+func WeekdayName(tqwd TqWeekday) string {
+	if tqwd < Friday || tqwd > Thursday {
 		return ""
 	}
-	return time.Weekday((int(w) + 4) % 7).String()
+	return time.Weekday((int(tqwd) + 4) % 7).String()
 }
 
 //ShortDate returns the string representation of unixTime in a compact format. On special days, the result is "DDD %y", where DDD is a 3 character day code. On other days, the result is "DDM %y" where DD is the zero-padded day of the month, M is the first letter of the month name. In both cases, %y is a variable-length integer representing the year. %y is preceded by '-' on years Before Tranquility.
 func ShortDate(unixTime int64) string {
-	d := Day(unixTime)
-	y := Year(unixTime)
-	if d < 0 {
-		return fmt.Sprintf("%s %d", DayCode(d), y)
+	tqmd := Day(unixTime)
+	tqy := Year(unixTime)
+	if tqmd < 0 {
+		return fmt.Sprintf("%s %d", DayCode(tqmd), tqy)
 	}
-	ml := MonthLetter(Month(unixTime))
-	return fmt.Sprintf("%02d%s %d", d, ml, y)
+	tqml := MonthLetter(Month(unixTime))
+	return fmt.Sprintf("%02d%s %d", tqmd, tqml, tqy)
 }
 
 //LongDate returns the string representation of the unixTime in a descriptive format.
 func LongDate(unixTime int64) string {
-	d := Day(unixTime)
-	if d == MoonLandingDay {
-		return DayName(d)
+	tqmd := Day(unixTime)
+	if tqmd == MoonLandingDay {
+		return DayName(tqmd)
 	}
 
-	y := Year(unixTime)
+	tqy := Year(unixTime)
 	var suffix string
-	if y < 0 {
+	if tqy < 0 {
 		suffix = "Before Tranquility"
-		y = -1 * y
+		tqy = -1 * tqy
 	} else {
 		suffix = "After Tranquility"
 	}
-	if d < 0 {
-		return fmt.Sprintf("%s, %d %s", DayName(d), y, suffix)
+	if tqmd < 0 {
+		return fmt.Sprintf("%s, %d %s", DayName(tqmd), tqy, suffix)
 	}
-	w := WeekdayName(Weekday(unixTime))
-	m := MonthName(Month(unixTime))
-	return fmt.Sprintf("%s, %s %s, %d %s", w, DayName(d), m, y, suffix)
+	tqwd := WeekdayName(Weekday(unixTime))
+	tqmn := MonthName(Month(unixTime))
+	return fmt.Sprintf("%s, %s %s, %d %s", tqwd, DayName(tqmd), tqmn, tqy, suffix)
 }
