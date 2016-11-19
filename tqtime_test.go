@@ -61,7 +61,6 @@ func TestShortDate(t *testing.T) {
 		actual := ShortDate(gt.Unix())
 		expected := tt.output
 		if actual != expected {
-			//t.Error("Short date", y, "-", m, "-", d, "expected '", expected, "', actual '", actual, "'.")
 			t.Errorf("Short date %s; expected %s; actual %s.", gt.Format("2006-01-02"), expected, actual)
 		}
 	}
@@ -101,6 +100,12 @@ var longTests = []struct {
 	{1971, time.September, 14, "Thursday, 28 Brahe, 3 After Tranquility"},
 	{1971, time.August, 18, "Friday, 1 Brahe, 3 After Tranquility"},
 	{1971, time.August, 17, "Thursday, 28 Archimedes, 3 After Tranquility"},
+	{1971, time.July, 27, "Thursday, 7 Archimedes, 3 After Tranquility"},
+	{1971, time.July, 26, "Wednesday, 6 Archimedes, 3 After Tranquility"},
+	{1971, time.July, 25, "Tuesday, 5 Archimedes, 3 After Tranquility"},
+	{1971, time.July, 24, "Monday, 4 Archimedes, 3 After Tranquility"},
+	{1971, time.July, 23, "Sunday, 3 Archimedes, 3 After Tranquility"},
+	{1971, time.July, 22, "Saturday, 2 Archimedes, 3 After Tranquility"},
 	{1971, time.July, 21, "Friday, 1 Archimedes, 3 After Tranquility"},
 	{1970, time.July, 20, "Armstrong Day, 1 After Tranquility"},
 	{1969, time.July, 21, "Friday, 1 Archimedes, 1 After Tranquility"},
@@ -123,8 +128,83 @@ func TestLongDate(t *testing.T) {
 		actual := LongDate(gt.Unix())
 		expected := tt.output
 		if actual != expected {
-			//t.Error("Short date", y, "-", m, "-", d, "expected '", expected, "', actual '", actual, "'.")
 			t.Errorf("Long date %s; expected %s; actual %s.", gt.Format("2006-01-02"), expected, actual)
 		}
+	}
+}
+
+var TranquilityBoundaryTests = []struct {
+	minute int
+	second int
+	output bool
+}{
+	{18, 2, false},
+	{18, 1, false},
+	{17, 59, true},
+	{17, 58, true},
+}
+
+func TestTranquilityBoundary(t *testing.T) {
+	for _, tt := range TranquilityBoundaryTests {
+		min := tt.minute
+		sec := tt.second
+		gt := time.Date(1969, time.July, 20, 20, min, sec, 0, time.UTC)
+		actual := IsBeforeTranquility(gt.Unix())
+		expected := tt.output
+		if actual != expected {
+			t.Errorf("Time %s on Moon Landing Day on wrong side of Tranquility Boundary.", gt.Format("15:04:05"))
+		}
+	}
+}
+
+func TestMonthSpecialDay(t *testing.T) {
+	gt1 := time.Date(1969, time.July, 20, 20, 1, 1, 1, time.UTC)
+	if Month(gt1.Unix()) != SpecialDay {
+		t.Error("Month did not return SpecialDay on Moon Landing Day.")
+	}
+	gt2 := time.Date(1968, time.July, 20, 20, 1, 1, 1, time.UTC)
+	if Month(gt2.Unix()) != SpecialDay {
+		t.Error("Month did not return SpecialDay on Armstrong Day.")
+	}
+	gt3 := time.Date(2000, time.February, 29, 1, 1, 1, 1, time.UTC)
+	if Month(gt3.Unix()) != SpecialDay {
+		t.Error("Month did not return SpecialDay on Aldrin Day.")
+	}
+}
+
+func TestWeekdayNameInvalid(t *testing.T) {
+	if WeekdayName(-99) != "" {
+		t.Error("WeekdayName did not return blank with invalid value.")
+	}
+}
+
+func TestWeekdaySpecial(t *testing.T) {
+	gt := time.Date(2000, time.February, 29, 1, 1, 1, 1, time.UTC)
+	if Weekday(gt.Unix()) != SpecialWeekday {
+		t.Error("Weekday did not return SpecialWeekday on Aldrin Day.")
+	}
+}
+
+func TestDayCodeOrdinary(t *testing.T) {
+	if DayCode(11) != "11" {
+		t.Error("DayCode did not return '11' with input 11.")
+	}
+}
+
+func TestDayNameOrdinary(t *testing.T) {
+	if DayName(11) != "11" {
+		t.Error("DayName did not return '11' with input 11.")
+	}
+}
+
+func TestMonthNameInvalid(t *testing.T) {
+	if MonthName(-99) != "" {
+		t.Error("MonthName did not return blank with invalid value.")
+	}
+}
+
+func TestMonthLetterInvalid(t *testing.T) {
+	if MonthLetter(-99) != "" {
+		t.Error("MonthLetter did not return blank with invalid value.")
 	}
 }

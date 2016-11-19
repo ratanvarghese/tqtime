@@ -75,7 +75,7 @@ func isAfterArmstrongDay(g time.Time) bool {
 	return (m > mlMonth) || (m == mlMonth && d > mlDay)
 }
 
-//IsBeforeTranquility returns true if and only if unixTime is before 20:18:01.2 on Moon Landing Day. This is the exact moment that Neil Armstrong said the word "Tranquility" in the phrase "Houston, Tranquility Base here. The Eagle has landed."
+//IsBeforeTranquility returns true if and only if unixTime is before 20:18:01 on Moon Landing Day. This is the exact moment that Neil Armstrong said the word "Tranquility" in the phrase "Houston, Tranquility Base here. The Eagle has landed."
 func IsBeforeTranquility(unixTime int64) bool {
 	const unixMoonLanding int64 = -14182919
 	return unixTime < unixMoonLanding
@@ -290,7 +290,7 @@ func ShortDate(unixTime int64) string {
 func LongDate(unixTime int64) string {
 	d := Day(unixTime)
 	if d == MoonLandingDay {
-		return "Moon Landing Day"
+		return DayName(d)
 	}
 
 	y := Year(unixTime)
