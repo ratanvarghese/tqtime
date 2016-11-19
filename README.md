@@ -9,7 +9,7 @@ The Tranquility Calendar is a calendar system developed by Jeff Siggins. It is [
 Instead of being centered on a religious event in the ancient past, the Tranquility Calendar starts on the date of a recent, well-recorded event: the day Neil Armstrong and Buzz Aldrin landed on the moon. This is 20 July 1969 in the conventional Gregorian calendar system. This day is called Moon Landing Day, and is not part of any month or year. At 20:18:01 UTC on Moon Landing Day, Neil Armstrong said the word "Tranquility" in the "Houston, Tranquility Base here, The Eagle has landed." All time before this moment is considered "Before Tranquility", and all time after is considered "After Tranquility". 
 
 ###Months and Days of the Week
-The months are named after great scientists, instead of [Roman autocrats](https://en.wikipedia.org/wiki/August) or [mismnumbered months from previous calendar systems](https://en.wikipedia.org/wiki/September).
+The months are named after great scientists, instead of [Roman autocrats](https://en.wikipedia.org/wiki/August) or [misnumbered months from previous calendar systems](https://en.wikipedia.org/wiki/September).
 * Archimedes
 * Brahe
 * Copernicus
