@@ -63,7 +63,7 @@ There is a basic test script called tqcheck which requires [gometalinter](https:
 `go test`
 
 ##20 July 1968: Which Tranquility Year Does it Belong to?
-The [wikipedia article](https://en.wikipedia.org/wiki/Tranquility_Calendar) about the Tranquility calendar says:
+The [Wikipedia article](https://en.wikipedia.org/wiki/Tranquility_Calendar) about the Tranquility calendar says:
 > The year ending the day before Moon Landing Day, and starting on the previous Armstrong Day, is 1 Before Tranquility, or 1 BT.
 
 This would suggest that dates Before Tranquility start on Armstrong Day, instead of ending on it. But Jeff Siggins' article states that:
@@ -73,7 +73,7 @@ Days Before Tranquility are hardly mentioned by Siggins.
 
 When using [tranquilityDate.c](http://www.mithrandir.com/Tranquility/tranquilityDate.c) by Scott M Harrison, 20 July 1968 is considered Armstrong Day 1 Before Tranquility... but 20 July 1967 is considered Armstrong Day 3 Before Tranquility!
 
-As far as I know, the biggest users of the Tranquility calendar today are the [Orion's Arm collaborative science project](http://www.orionsarm.com) but they do not care about anything that happened on 20 July 1968.
+As far as I know, the biggest users of the Tranquility calendar today are the [Orion's Arm collaborative science fiction project](http://www.orionsarm.com) but they do not care about anything that happened on 20 July 1968.
 
 On the matter of Armstrong Days Before Tranquility, this package assumes the following:
 * 20 July 1969 is Moon Landing Day, and not part of any year.
