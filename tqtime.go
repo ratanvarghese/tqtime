@@ -177,43 +177,32 @@ func Weekday(unixTime int64) TqWeekday {
 	return TqWeekday(clockModulo(tqd, 7))
 }
 
-//MonthName returns the English name of the given Tranquility month. If m is not a valid month, a blank string is returned.
-func MonthName(tqm TqMonth) string {
-	switch tqm {
-	case Archimedes:
-		return "Archimedes"
-	case Brahe:
-		return "Brahe"
-	case Copernicus:
-		return "Copernicus"
-	case Darwin:
-		return "Darwin"
-	case Einstein:
-		return "Einstein"
-	case Faraday:
-		return "Faraday"
-	case Galileo:
-		return "Galileo"
-	case Hippocrates:
-		return "Hippocrates"
-	case Imhotep:
-		return "Imhotep"
-	case Jung:
-		return "Jung"
-	case Kepler:
-		return "Kepler"
-	case Lavoisier:
-		return "Lavoisier"
-	case Mendel:
-		return "Mendel"
-	default:
+//String returns the English name of the given Tranquility month. If m is not a valid month, a blank string is returned.
+func (tqm TqMonth) String() string {
+	if tqm < Archimedes || tqm > Mendel {
 		return ""
 	}
+	names := [Mendel]string{
+		"Archimedes",
+		"Brahe",
+		"Copernicus",
+		"Darwin",
+		"Einstein",
+		"Faraday",
+		"Galileo",
+		"Hippocrates",
+		"Imhotep",
+		"Jung",
+		"Kepler",
+		"Lavoisier",
+		"Mendel",
+	}
+	return names[tqm-1]
 }
 
 //MonthLetter returns the first letter of the name of the given Tranquility month. If m is not a valid month, a blank string is returned.
 func MonthLetter(tqm TqMonth) string {
-	name := MonthName(tqm)
+	name := tqm.String()
 	if len(name) > 0 {
 		return name[:1]
 	}
@@ -286,6 +275,6 @@ func LongDate(unixTime int64) string {
 		return fmt.Sprintf("%s, %d %s", DayName(tqmd), tqy, suffix)
 	}
 	tqwd := WeekdayName(Weekday(unixTime))
-	tqmn := MonthName(Month(unixTime))
-	return fmt.Sprintf("%s, %s %s, %d %s", tqwd, DayName(tqmd), tqmn, tqy, suffix)
+	tqmn := Month(unixTime)
+	return fmt.Sprintf("%s, %s %v, %d %s", tqwd, DayName(tqmd), tqmn, tqy, suffix)
 }

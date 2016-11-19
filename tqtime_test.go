@@ -198,8 +198,8 @@ func TestDayNameOrdinary(t *testing.T) {
 }
 
 func TestMonthNameInvalid(t *testing.T) {
-	if MonthName(-99) != "" {
-		t.Error("MonthName did not return blank with invalid value.")
+	if TqMonth(-99).String() != "" {
+		t.Error("TqMonth.String did not return blank with invalid value.")
 	}
 }
 
