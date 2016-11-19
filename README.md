@@ -71,9 +71,9 @@ This would suggest that dates Before Tranquility start on Armstrong Day, instead
 
 Days Before Tranquility are hardly mentioned by Siggins.
 
-When using [tranquilityDate.c](https://www.mithrandir.com/Tranquility/tranquilityDate.c) by Scott M Harrison, 20 July 1968 is considered Armstrong Day 1 Before Tranquility... but 20 July 1967 is considered Armstrong Day 3 Before Tranquility!
+When using [tranquilityDate.c](http://www.mithrandir.com/Tranquility/tranquilityDate.c) by Scott M Harrison, 20 July 1968 is considered Armstrong Day 1 Before Tranquility... but 20 July 1967 is considered Armstrong Day 3 Before Tranquility!
 
-As far as I know, the biggest users of the Tranquility calendar today are the [Orion's Arm collaborative science project](https://www.orionsarm.com) but they do not care about anything that happened on 20 July 1968.
+As far as I know, the biggest users of the Tranquility calendar today are the [Orion's Arm collaborative science project](http://www.orionsarm.com) but they do not care about anything that happened on 20 July 1968.
 
 On the matter of Armstrong Days Before Tranquility, this package assumes the following:
 * 20 July 1969 is Moon Landing Day, and not part of any year.
