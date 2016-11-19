@@ -51,15 +51,15 @@ Special Days have unique codes:
 `Aldrin Day            ALD`
 
 `Moon Landing Day      MNL`
+
 ShortDate appends this code with a space and a variable-length year number. Years Before Tranquility are negative numbers, years After Tranquility are positive. So '28 Mendel, 3 Before Tranquility' becomes `28M -3`.
 
 If you do not like the provided `LongDate` and `ShortDate`, you can gather all the induvidual date components and print them as you wish.
 
-A basic utility to print the current day exists in `_example`.
-`go run _example/today.go`
+A basic utility to print the current day exists in `_example`: `go run _example/today.go`
 
 ###Testing
-There is a basic test script called tqcheck which requires [gometalinter](https://github.com/alecthomas/gometalinter) and a UNIX shell. This is convenient if you already have both of those. If not, just use the standard Go tools and whatever else is in your setup.
+There is a basic test script called tqcheck which requires [gometalinter](https://github.com/alecthomas/gometalinter) and a UNIX shell. This is convenient if you already have both of those. If not, just use the standard Go tools and whatever else is in your setup:
 `go test`
 
 ##20 July 1968: Which Tranquility Year Does it Belong to?
