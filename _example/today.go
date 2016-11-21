@@ -7,5 +7,8 @@ import (
 )
 
 func main() {
-    fmt.Println(tqtime.LongDate(time.Now().Unix()))
+    t := time.Now().Unix()
+    long := tqtime.LongDate(t)
+    short := tqtime.ShortDate(t)
+    fmt.Printf("%s\t%s\n", long, short)
 }
