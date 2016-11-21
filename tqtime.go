@@ -59,9 +59,9 @@ const gCommonYearArmstrongDay int = 201
 const tqMonthLen int = 28
 const gMoonLandingYear int = 1969
 
-//gYearDayUTC gets the UTC Gregorian year and day of year from unixTime.
-func gYearDayUTC(unixTime int64) (gy, gyd int) {
-	gt := time.Unix(unixTime, 0).UTC()
+//gYearDay gets the Gregorian year and day of year from unixTime.
+func gYearDay(unixTime int64) (gy, gyd int) {
+	gt := time.Unix(unixTime, 0)
 	return gt.Year(), gt.YearDay()
 }
 
@@ -122,7 +122,7 @@ func tqLeapAdjustedYearDay(tqyd, gy int) int {
 
 //YearDay returns the day of the Tranquility year of the given unixTime.
 func YearDay(unixTime int64) int {
-	gy, gyd := gYearDayUTC(unixTime)
+	gy, gyd := gYearDay(unixTime)
 	return tqYearDay(gy, gyd)
 }
 
@@ -134,7 +134,7 @@ func IsBeforeTranquility(unixTime int64) bool {
 
 //Year returns the Tranquility year of the given unixTime. This is defined as the years since the first moon landing. Years before Moon Landing Day are represented as negative, Moon Landing Day itself is represented with 0, and years after Moon Landing Day are represented as positive.
 func Year(unixTime int64) int {
-	gy, gyd := gYearDayUTC(unixTime)
+	gy, gyd := gYearDay(unixTime)
 	if gy == gMoonLandingYear && gyd == gCommonYearArmstrongDay {
 		return 0
 	}
@@ -150,7 +150,7 @@ func Year(unixTime int64) int {
 
 //Month returns the Tranquility month of the given unixTime. If unixTime does not fall on a month, SpecialDay is returned.
 func Month(unixTime int64) TqMonth {
-	gy, gyd := gYearDayUTC(unixTime)
+	gy, gyd := gYearDay(unixTime)
 	tqyd := tqLeapAdjustedYearDay(tqYearDay(gy, gyd), gy)
 	if tqyd < 0 {
 		return SpecialDay
@@ -160,7 +160,7 @@ func Month(unixTime int64) TqMonth {
 
 //Day returns the day of the Tranquility month of the given unixTime. If the unixTime does not fall on a month, a special negative value is returned: one of MoonLandingDay, ArmstrongDay or AldrinDay.
 func Day(unixTime int64) int {
-	gy, gyd := gYearDayUTC(unixTime)
+	gy, gyd := gYearDay(unixTime)
 	tqyd := tqLeapAdjustedYearDay(tqYearDay(gy, gyd), gy)
 	if tqyd < 0 {
 		return tqyd
