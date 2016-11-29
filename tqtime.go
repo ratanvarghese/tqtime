@@ -1,4 +1,4 @@
-//Package tqtime interprets UNIX timestamps (seconds since 00:00:00 UTC on January 1970) and outputs dates in the Tranquility calendar. The Tranquility calendar is a perennial calendar developed by Jeff Siggins. A copy of the article proposing this calendar is at www.webcitation.org/6WtW38bAU
+//Package tqtime interprets dates in the Gregorian calendar and outputs dates in the Tranquility calendar. The Tranquility calendar is a perennial calendar developed by Jeff Siggins. A copy of the article proposing this calendar is at www.webcitation.org/6WtW38bAU
 package tqtime
 
 //Note to modders: For nonexported symbols in this package, the prefix 'g' is Gregorian, and the prefix 'tq' is Tranquility.
@@ -59,12 +59,6 @@ const gCommonYearArmstrongDay int = 201
 const tqMonthLen int = 28
 const gMoonLandingYear int = 1969
 
-//gYearDay gets the Gregorian year and day of year from unixTime.
-func gYearDay(unixTime int64) (gy, gyd int) {
-	gt := time.Unix(unixTime, 0)
-	return gt.Year(), gt.YearDay()
-}
-
 //gLeapYear returns true if gy is a Gregorian leap year.
 func gLeapYear(gy int) bool {
 	return (gy%400 == 0) || (gy%4 == 0 && gy%100 != 0)
@@ -95,12 +89,6 @@ func clockModulo(a, b int) int {
 	return mod
 }
 
-//tqYearDay converts a Gregorian year and day of year into a Tranquility day of year.
-func tqYearDay(gy, gyd int) int {
-	shift := commonYearLen - gCommonYearArmstrongDay
-	return clockModulo((gyd + shift), gYearLen(gy))
-}
-
 //tqLeapAdjustedYearDay converts a Tranquility day of year and a Gregorian year into a value which is easier to calculate with. If the Gregorian year and Tranquility day of year corresponds to a special day, then that day's constant is returned. Otherwise, the corresponding day of common Tranquility year is returned. For instance if tqyd = 300 and gy = 2000, that represents a day after Aldrin Day on a leap year: the corresponding day of common Tranqility year is 299.
 func tqLeapAdjustedYearDay(tqyd, gy int) int {
 	if gLeapYear(gy) {
@@ -120,26 +108,51 @@ func tqLeapAdjustedYearDay(tqyd, gy int) int {
 	return tqyd
 }
 
-//YearDay returns the day of the Tranquility year of the given unixTime.
-func YearDay(unixTime int64) int {
-	gy, gyd := gYearDay(unixTime)
-	return tqYearDay(gy, gyd)
+//YearDay returns the day of the Tranquility year of the given Gregorian year and day of year.
+func YearDay(gYear, gDayOfYear int) int {
+	shift := commonYearLen - gCommonYearArmstrongDay
+	return clockModulo((gDayOfYear + shift), gYearLen(gYear))
 }
 
-//IsBeforeTranquility returns true if and only if unixTime is before 20:18:01 on Moon Landing Day. This is the exact moment that Neil Armstrong said the word "Tranquility" in the phrase "Houston, Tranquility Base here. The Eagle has landed."
-func IsBeforeTranquility(unixTime int64) bool {
-	const unixMoonLanding int64 = -14182919
-	return unixTime < unixMoonLanding
+//IsBeforeTranquility returns true if and only if the given Gregorian time is before 20:18:01.2 on Moon Landing Day. This is the exact moment that Neil Armstrong said the word "Tranquility" in the phrase "Houston, Tranquility Base here. The Eagle has landed."
+func IsBeforeTranquility(gYear, gDayOfYear, hour, minute, sec, millisec int) bool {
+	tqYear := Year(gYear, gDayOfYear)
+	const mlYear int = 0
+	const mlHour int = 20
+	const mlMinute int = 18
+	const mlSec int = 1
+	const mlMillisec int = 200
+	switch {
+	case tqYear < mlYear:
+		return true
+	case tqYear > mlYear:
+		return false
+	case hour < mlHour:
+		return true
+	case hour > mlHour:
+		return false
+	case minute < mlMinute:
+		return true
+	case minute > mlMinute:
+		return false
+	case sec < mlSec:
+		return true
+	case sec > mlSec:
+		return false
+	case millisec < mlMillisec:
+		return true
+	default:
+		return false
+	}
 }
 
-//Year returns the Tranquility year of the given unixTime. This is defined as the years since the first moon landing. Years before Moon Landing Day are represented as negative, Moon Landing Day itself is represented with 0, and years after Moon Landing Day are represented as positive.
-func Year(unixTime int64) int {
-	gy, gyd := gYearDay(unixTime)
-	if gy == gMoonLandingYear && gyd == gCommonYearArmstrongDay {
+//Year returns the Tranquility year of the given Gregorian year and day of year. This is defined as the years since the first moon landing. Years before Moon Landing Day are represented as negative, Moon Landing Day itself is represented with 0, and years after Moon Landing Day are represented as positive.
+func Year(gYear, gDayOfYear int) int {
+	if gYear == gMoonLandingYear && gDayOfYear == gCommonYearArmstrongDay {
 		return 0
 	}
-	diff := gy - gMoonLandingYear
-	if gyd > gArmstrongDay(gy) {
+	diff := gYear - gMoonLandingYear
+	if gDayOfYear > gArmstrongDay(gYear) {
 		diff++
 	}
 	if diff < 1 { //For 1 AT, depends on previous if statement.
@@ -148,29 +161,27 @@ func Year(unixTime int64) int {
 	return diff
 }
 
-//Month returns the Tranquility month of the given unixTime. If unixTime does not fall on a month, SpecialDay is returned.
-func Month(unixTime int64) TqMonth {
-	gy, gyd := gYearDay(unixTime)
-	tqyd := tqLeapAdjustedYearDay(tqYearDay(gy, gyd), gy)
+//Month returns the Tranquility month of the given Gregorian year and day of year. If the provided date does not fall on a month, SpecialDay is returned.
+func Month(gYear, gDayOfYear int) TqMonth {
+	tqyd := tqLeapAdjustedYearDay(YearDay(gYear, gDayOfYear), gYear)
 	if tqyd < 0 {
 		return SpecialDay
 	}
 	return TqMonth(((tqyd - 1) / tqMonthLen) + 1)
 }
 
-//Day returns the day of the Tranquility month of the given unixTime. If the unixTime does not fall on a month, a special negative value is returned: one of MoonLandingDay, ArmstrongDay or AldrinDay.
-func Day(unixTime int64) int {
-	gy, gyd := gYearDay(unixTime)
-	tqyd := tqLeapAdjustedYearDay(tqYearDay(gy, gyd), gy)
+//Day returns the day of the Tranquility month of the given Gregorian year and day of year. If the provided date does not fall on a month, a special negative value is returned: one of MoonLandingDay, ArmstrongDay or AldrinDay.
+func Day(gYear, gDayOfYear int) int {
+	tqyd := tqLeapAdjustedYearDay(YearDay(gYear, gDayOfYear), gYear)
 	if tqyd < 0 {
 		return tqyd
 	}
 	return clockModulo(tqyd, tqMonthLen)
 }
 
-//Weekday returns the day of the week of the given unixTime. If unixTime does not fall on a week, the value SpecialWeekday is returned.
-func Weekday(unixTime int64) TqWeekday {
-	tqd := Day(unixTime)
+//Weekday returns the Tranquility day of the week of the provided Gregorian year and day of year. If the provided date does not fall on a week, the value SpecialWeekday is returned.
+func Weekday(gYear, gDayOfYear int) TqWeekday {
+	tqd := Day(gYear, gDayOfYear)
 	if tqd < 0 {
 		return SpecialWeekday
 	}
@@ -245,25 +256,25 @@ func WeekdayName(tqwd TqWeekday) string {
 	return time.Weekday((int(tqwd) + 4) % 7).String()
 }
 
-//ShortDate returns the string representation of unixTime in a compact format. On special days, the result is "DDD %y", where DDD is a 3 character day code. On other days, the result is "DDM %y" where DD is the zero-padded day of the month, M is the first letter of the month name. In both cases, %y is a variable-length integer representing the year. %y is preceded by '-' on years Before Tranquility.
-func ShortDate(unixTime int64) string {
-	tqmd := Day(unixTime)
-	tqy := Year(unixTime)
+//ShortDate takes a Gregorian year and day of year, and returns the string representation of the Tranquility Date in a compact format. On special days, the result is "DDD %y", where DDD is a 3 character day code. On other days, the result is "DDM %y" where DD is the zero-padded day of the month, M is the first letter of the month name. In both cases, %y is a variable-length integer representing the year. %y is preceded by '-' on years Before Tranquility.
+func ShortDate(gYear, gDayOfYear int) string {
+	tqmd := Day(gYear, gDayOfYear)
+	tqy := Year(gYear, gDayOfYear)
 	if tqmd < 0 {
 		return fmt.Sprintf("%s %d", DayCode(tqmd), tqy)
 	}
-	tqml := MonthLetter(Month(unixTime))
+	tqml := MonthLetter(Month(gYear, gDayOfYear))
 	return fmt.Sprintf("%02d%s %d", tqmd, tqml, tqy)
 }
 
-//LongDate returns the string representation of the unixTime in a descriptive format.
-func LongDate(unixTime int64) string {
-	tqmd := Day(unixTime)
+//LongDate takes a Gregorian year and day of year, and returns the string representation of the Tranquility Date in a descriptive format.
+func LongDate(gYear, gDayOfYear int) string {
+	tqmd := Day(gYear, gDayOfYear)
 	if tqmd == MoonLandingDay {
 		return DayName(tqmd)
 	}
 
-	tqy := Year(unixTime)
+	tqy := Year(gYear, gDayOfYear)
 	var suffix string
 	if tqy < 0 {
 		suffix = "Before Tranquility"
@@ -274,7 +285,7 @@ func LongDate(unixTime int64) string {
 	if tqmd < 0 {
 		return fmt.Sprintf("%s, %d %s", DayName(tqmd), tqy, suffix)
 	}
-	tqwd := WeekdayName(Weekday(unixTime))
-	tqmn := Month(unixTime)
+	tqwd := WeekdayName(Weekday(gYear, gDayOfYear))
+	tqmn := Month(gYear, gDayOfYear)
 	return fmt.Sprintf("%s, %s %v, %d %s", tqwd, DayName(tqmd), tqmn, tqy, suffix)
 }

@@ -58,7 +58,7 @@ func TestShortDate(t *testing.T) {
 		m := tt.gMonth
 		d := tt.gDay
 		gt := time.Date(y, m, d, 1, 1, 1, 1, time.UTC)
-		actual := ShortDate(gt.Unix())
+		actual := ShortDate(gt.Year(), gt.YearDay())
 		expected := tt.output
 		if actual != expected {
 			t.Errorf("Short date %s; expected %s; actual %s.", gt.Format("2006-01-02"), expected, actual)
@@ -125,7 +125,7 @@ func TestLongDate(t *testing.T) {
 		m := tt.gMonth
 		d := tt.gDay
 		gt := time.Date(y, m, d, 1, 1, 1, 1, time.UTC)
-		actual := LongDate(gt.Unix())
+		actual := LongDate(gt.Year(), gt.YearDay())
 		expected := tt.output
 		if actual != expected {
 			t.Errorf("Long date %s; expected %s; actual %s.", gt.Format("2006-01-02"), expected, actual)
@@ -139,7 +139,7 @@ var TranquilityBoundaryTests = []struct {
 	output bool
 }{
 	{18, 2, false},
-	{18, 1, false},
+	{18, 1, true},
 	{17, 59, true},
 	{17, 58, true},
 }
@@ -149,7 +149,7 @@ func TestTranquilityBoundary(t *testing.T) {
 		min := tt.minute
 		sec := tt.second
 		gt := time.Date(1969, time.July, 20, 20, min, sec, 0, time.UTC)
-		actual := IsBeforeTranquility(gt.Unix())
+		actual := IsBeforeTranquility(gt.Year(), gt.YearDay(), gt.Hour(), gt.Minute(), gt.Second(), gt.Nanosecond()*1000000)
 		expected := tt.output
 		if actual != expected {
 			t.Errorf("Time %s on Moon Landing Day on wrong side of Tranquility Boundary.", gt.Format("15:04:05"))
@@ -159,15 +159,15 @@ func TestTranquilityBoundary(t *testing.T) {
 
 func TestMonthSpecialDay(t *testing.T) {
 	gt1 := time.Date(1969, time.July, 20, 20, 1, 1, 1, time.UTC)
-	if Month(gt1.Unix()) != SpecialDay {
+	if Month(gt1.Year(), gt1.YearDay()) != SpecialDay {
 		t.Error("Month did not return SpecialDay on Moon Landing Day.")
 	}
 	gt2 := time.Date(1968, time.July, 20, 20, 1, 1, 1, time.UTC)
-	if Month(gt2.Unix()) != SpecialDay {
+	if Month(gt2.Year(), gt2.YearDay()) != SpecialDay {
 		t.Error("Month did not return SpecialDay on Armstrong Day.")
 	}
 	gt3 := time.Date(2000, time.February, 29, 1, 1, 1, 1, time.UTC)
-	if Month(gt3.Unix()) != SpecialDay {
+	if Month(gt3.Year(), gt3.YearDay()) != SpecialDay {
 		t.Error("Month did not return SpecialDay on Aldrin Day.")
 	}
 }
@@ -180,7 +180,7 @@ func TestWeekdayNameInvalid(t *testing.T) {
 
 func TestWeekdaySpecial(t *testing.T) {
 	gt := time.Date(2000, time.February, 29, 1, 1, 1, 1, time.UTC)
-	if Weekday(gt.Unix()) != SpecialWeekday {
+	if Weekday(gt.Year(), gt.YearDay()) != SpecialWeekday {
 		t.Error("Weekday did not return SpecialWeekday on Aldrin Day.")
 	}
 }

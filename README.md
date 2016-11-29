@@ -1,6 +1,6 @@
 #TqTime
 
-This package generates dates and date components of the [Tranquility Calendar](http://www.webcitation.org/6WtW38bAU) from seconds in the [Unix epoch](https://en.wikipedia.org/wiki/Unix_time).
+This package generates dates and date components of the [Tranquility Calendar](http://www.webcitation.org/6WtW38bAU) from standard Gregorian dates.
 
 ##What is the Tranquility Calendar?
 The Tranquility Calendar is a calendar system developed by Jeff Siggins. It is [perennial](https://en.wikipedia.org/wiki/Perennial_calendar): the days of the week occur on the same dates every month and every year.

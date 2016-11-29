@@ -1,14 +1,14 @@
 package main
 
 import (
-    "fmt"
-    "time"
-    "github.com/ratanvarghese/tqtime"
+	"fmt"
+	"github.com/ratanvarghese/tqtime"
+	"time"
 )
 
 func main() {
-    t := time.Now().Unix()
-    long := tqtime.LongDate(t)
-    short := tqtime.ShortDate(t)
-    fmt.Printf("%s\t%s\n", long, short)
+	t := time.Now()
+	long := tqtime.LongDate(t.Year(), t.YearDay())
+	short := tqtime.ShortDate(t.Year(), t.YearDay())
+	fmt.Printf("%s\t%s\n", long, short)
 }
