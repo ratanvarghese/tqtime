@@ -80,6 +80,20 @@ func gArmstrongDay(gy int) int {
 	return gCommonYearArmstrongDay
 }
 
+//gNormalize converts an arbitrary Gregorian year & day of year into a normalized Gregorian year & day of year. The resulting day of year is guaranteed to be in range [0,366] if the resulting year is a leap year, and guaranteed to be in range [0,365] if the resulting year is a common year. For instance gy1 = 2006, gyd1 = 0 normalizes to gy2 = 2005, gyd2 = 365, and gy1 = 2006, gyd1 = -1 normalizes to gy2 = 2005, gyd2 = 364.
+func gNormalize(gy1, gyd1 int) (gy2, gyd2 int) {
+	gy2, gyd2 = gy1, gyd1
+	for gyd2 < 1 {
+		gyd2 += (gYearLen(gy2) - 1)
+		gy2--
+	}
+	for gyd2 > gYearLen(gy2) {
+		gyd2 -= gYearLen(gy2)
+		gy2++
+	}
+	return
+}
+
 //clockModulo returns the modulo as a number in range [1,b] rather than a number in range [0,b-1]. If a % b is zero, b is returned. Otherwise a % b is returned. This is important because calendars tend to have cycles but rarely count from 0.
 func clockModulo(a, b int) int {
 	mod := a % b
@@ -110,12 +124,14 @@ func tqLeapAdjustedYearDay(tqyd, gy int) int {
 
 //YearDay returns the day of the Tranquility year of the given Gregorian year and day of year.
 func YearDay(gYear, gDayOfYear int) int {
+	gYear, gDayOfYear = gNormalize(gYear, gDayOfYear)
 	shift := commonYearLen - gCommonYearArmstrongDay
 	return clockModulo((gDayOfYear + shift), gYearLen(gYear))
 }
 
 //IsBeforeTranquility returns true if and only if the given Gregorian time is before 20:18:01.2 on Moon Landing Day. This is the exact moment that Neil Armstrong said the word "Tranquility" in the phrase "Houston, Tranquility Base here. The Eagle has landed."
 func IsBeforeTranquility(gYear, gDayOfYear, hour, minute, sec, millisec int) bool {
+	gYear, gDayOfYear = gNormalize(gYear, gDayOfYear)
 	tqYear := Year(gYear, gDayOfYear)
 	const mlYear int = 0
 	const mlHour int = 20
@@ -148,6 +164,7 @@ func IsBeforeTranquility(gYear, gDayOfYear, hour, minute, sec, millisec int) boo
 
 //Year returns the Tranquility year of the given Gregorian year and day of year. This is defined as the years since the first moon landing. Years before Moon Landing Day are represented as negative, Moon Landing Day itself is represented with 0, and years after Moon Landing Day are represented as positive.
 func Year(gYear, gDayOfYear int) int {
+	gYear, gDayOfYear = gNormalize(gYear, gDayOfYear)
 	if gYear == gMoonLandingYear && gDayOfYear == gCommonYearArmstrongDay {
 		return 0
 	}
@@ -163,6 +180,7 @@ func Year(gYear, gDayOfYear int) int {
 
 //Month returns the Tranquility month of the given Gregorian year and day of year. If the provided date does not fall on a month, SpecialDay is returned.
 func Month(gYear, gDayOfYear int) TqMonth {
+	gYear, gDayOfYear = gNormalize(gYear, gDayOfYear)
 	tqyd := tqLeapAdjustedYearDay(YearDay(gYear, gDayOfYear), gYear)
 	if tqyd < 0 {
 		return SpecialDay
@@ -172,6 +190,7 @@ func Month(gYear, gDayOfYear int) TqMonth {
 
 //Day returns the day of the Tranquility month of the given Gregorian year and day of year. If the provided date does not fall on a month, a special negative value is returned: one of MoonLandingDay, ArmstrongDay or AldrinDay.
 func Day(gYear, gDayOfYear int) int {
+	gYear, gDayOfYear = gNormalize(gYear, gDayOfYear)
 	tqyd := tqLeapAdjustedYearDay(YearDay(gYear, gDayOfYear), gYear)
 	if tqyd < 0 {
 		return tqyd
@@ -181,6 +200,7 @@ func Day(gYear, gDayOfYear int) int {
 
 //Weekday returns the Tranquility day of the week of the provided Gregorian year and day of year. If the provided date does not fall on a week, the value SpecialWeekday is returned.
 func Weekday(gYear, gDayOfYear int) TqWeekday {
+	gYear, gDayOfYear = gNormalize(gYear, gDayOfYear)
 	tqd := Day(gYear, gDayOfYear)
 	if tqd < 0 {
 		return SpecialWeekday
@@ -258,6 +278,7 @@ func WeekdayName(tqwd TqWeekday) string {
 
 //ShortDate takes a Gregorian year and day of year, and returns the string representation of the Tranquility Date in a compact format. On special days, the result is "DDD %y", where DDD is a 3 character day code. On other days, the result is "DDM %y" where DD is the zero-padded day of the month, M is the first letter of the month name. In both cases, %y is a variable-length integer representing the year. %y is preceded by '-' on years Before Tranquility.
 func ShortDate(gYear, gDayOfYear int) string {
+	gYear, gDayOfYear = gNormalize(gYear, gDayOfYear)
 	tqmd := Day(gYear, gDayOfYear)
 	tqy := Year(gYear, gDayOfYear)
 	if tqmd < 0 {
@@ -269,6 +290,7 @@ func ShortDate(gYear, gDayOfYear int) string {
 
 //LongDate takes a Gregorian year and day of year, and returns the string representation of the Tranquility Date in a descriptive format.
 func LongDate(gYear, gDayOfYear int) string {
+	gYear, gDayOfYear = gNormalize(gYear, gDayOfYear)
 	tqmd := Day(gYear, gDayOfYear)
 	if tqmd == MoonLandingDay {
 		return DayName(tqmd)

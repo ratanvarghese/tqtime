@@ -208,3 +208,25 @@ func TestMonthLetterInvalid(t *testing.T) {
 		t.Error("MonthLetter did not return blank with invalid value.")
 	}
 }
+
+var NormalizeTests = []struct {
+	gYear  int
+	gDay   int
+	output string
+}{
+	{2000, 367, "25F 32"},
+	{2000, 366, "24F 32"},
+	{2000, 1, "25F 31"},
+	{2000, 0, "24F 31"},
+	{2000, -1, "23F 31"},
+}
+
+func TestNormalizedDates(t *testing.T) {
+	for _, tt := range NormalizeTests {
+		actual := ShortDate(tt.gYear, tt.gDay)
+		expected := tt.output
+		if actual != expected {
+			t.Error("Bad normalize (%d,%d), expected '%s', actual '%s", tt.gYear, tt.gDay, expected, actual)
+		}
+	}
+}
