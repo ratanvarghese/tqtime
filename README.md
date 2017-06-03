@@ -1,11 +1,11 @@
-#TqTime
+# TqTime
 
 This package generates dates and date components of the [Tranquility Calendar](http://www.webcitation.org/6WtW38bAU) from standard Gregorian dates.
 
-##What is the Tranquility Calendar?
+## What is the Tranquility Calendar?
 The Tranquility Calendar is a calendar system developed by Jeff Siggins. It is [perennial](https://en.wikipedia.org/wiki/Perennial_calendar): the days of the week occur on the same dates every month and every year.
 
-###Moon Landing Day and Tranquility
+### Moon Landing Day and Tranquility
 Instead of being centered on a religious event in the ancient
 past, the Tranquility Calendar starts on the date of a recent, 
 well-recorded event: the day Neil Armstrong and Buzz Aldrin landed
@@ -17,7 +17,7 @@ Neil Armstrong said the word "Tranquility" in the phrase "Houston,
  this moment is considered "Before Tranquility", and all time
 after is considered "After Tranquility". 
 
-###Months and Days of the Week
+### Months and Days of the Week
 The months are named after great scientists, instead of [Roman autocrats](https://en.wikipedia.org/wiki/August) or [misnumbered months from previous calendar systems](https://en.wikipedia.org/wiki/September).
 
 1. Archimedes
@@ -39,7 +39,7 @@ unambiguously identified with just the first letter. Every month
 starts on a Friday, and has 28 days. 1 Archimedes, 1 After
 Tranquility is 21 July 1969 in the Gregorian calendar.
 
-###Special Days
+### Special Days
 In addition to Moon Landing Day, there are two other special days 
 which are not bound to any month or week. Armstrong Day is the 
 last day of every year (with one possible exception, see below). 
@@ -52,13 +52,13 @@ and after 31 After Tranquility, unless the difference is divisible
  by 100 and not divisible by 400. It corresponds exactly to 29th 
 February in the Gregorian calendar.
 
-##Using this package
+## Using this package
 All commands are assumed to be run from the root source directory.
 
-###Installation
+### Installation
 To install this package, install the [standard go tools](https://golang.org/doc/install). Then run: `go get github.com/ratanvarghese/tqtime`.
 
-###Functions
+### Functions
 All exported functions are documented in the standard Go format,
 so for more information run `go doc`.
 
@@ -92,15 +92,15 @@ you wish.
 A basic utility to print the current day exists in `_example`: 
 `go run _example/today.go`
 
-###Testing
+### Testing
 There is a basic test script called tqcheck which requires [gometalinter](https://github.com/alecthomas/gometalinter) and a UNIX shell. This is convenient if you already have both of those. If not, just use the standard Go tools and whatever else is in your setup:
 `go test`
 
-##License
+## License
 TqTime is provided under the MIT license.
 See LICENSE.txt for details.
 
-##20 July 1968: Which Tranquility Year Does it Belong to?
+## 20 July 1968: Which Tranquility Year Does it Belong to?
 The [Wikipedia article](https://en.wikipedia.org/wiki/Tranquility_Calendar) about the Tranquility calendar says:
 > The year ending the day before Moon Landing Day, and starting on
 > the previous Armstrong Day, is 1 Before Tranquility, or 1 BT.
@@ -128,5 +128,5 @@ assumes the following:
   the Heat Death of the Universe, ends on Armstrong Day. Armstrong
   Day always corresponds to the Gregorian date 20 July.
 
-##Authors
+## Authors
 Ratan Varghese
