@@ -15,6 +15,7 @@ func main() {
 	inputFormat := flag.String("inputformat", time.UnixDate, "Reference date in Gregorian input format")
 	input := flag.String("input", "", "Gregorian input date, use stdin if omitted")
 	help := flag.Bool("help", false, "Print command-line options")
+	short := flag.Bool("short", false, "Use short output format")
 	flag.Parse()
 
 	if *help {
@@ -39,7 +40,13 @@ func main() {
 			log.Fatal(parseErr.Error())
 			break
 		}
-		long := tqtime.LongDate(t.Year(), t.YearDay())
-		fmt.Println(long)
+
+		var out string
+		if *short {
+			out = tqtime.ShortDate(t.Year(), t.YearDay())
+		} else {
+			out = tqtime.LongDate(t.Year(), t.YearDay())
+		}
+		fmt.Println(out)
 	}
 }
