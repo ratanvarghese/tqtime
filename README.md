@@ -101,7 +101,7 @@ TqTime is provided under the MIT license.
 See LICENSE.txt for details.
 
 ## 20 July 1968: Which Tranquility Year Does it Belong to?
-The [Wikipedia article](https://en.wikipedia.org/wiki/Tranquility_Calendar) about the Tranquility calendar says:
+The ~~Wikipedia~~ [Deletionpedia article](http://deletionpedia.org/en/Tranquility_Calendar) about the Tranquility calendar says:
 > The year ending the day before Moon Landing Day, and starting on
 > the previous Armstrong Day, is 1 Before Tranquility, or 1 BT.
 
