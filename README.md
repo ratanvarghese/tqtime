@@ -1,5 +1,7 @@
 # TqTime
 
+This package is **abandoned**, and probably will not compile on the latest version of Go.
+
 This package generates dates and date components of the [Tranquility Calendar](http://www.webcitation.org/6WtW38bAU) from standard Gregorian dates.
 
 ## What is the Tranquility Calendar?
